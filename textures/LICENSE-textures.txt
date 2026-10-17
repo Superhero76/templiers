@@ -1,0 +1,27 @@
+Textures de la page « La commanderie »
+
+sol_couleur.jpg, sol_normal.jpg, sol_rugosite.jpg
+  Poly Haven, « Cobblestone Floor 001 » (cobblestone_floor_001), redimensionnées.
+mur_couleur.jpg, mur_normal.jpg, mur_rugosite.jpg
+  Poly Haven, « Castle Wall Slates » (castle_wall_slates), redimensionnées.
+bois_couleur.jpg, bois_normal.jpg, bois_rugosite.jpg
+  Poly Haven, « Wood Table » (wood_table), redimensionnées.
+tonneau_couleur.jpg, tonneau_normal.jpg, tonneau_rugosite.jpg
+  Poly Haven, « Wooden Barrel » (wooden_barrel), redimensionnées.
+  Licence : CC0 1.0 Universel (domaine public) — https://polyhaven.com/license
+  Merci à Poly Haven (https://polyhaven.com) et à ses auteurs.
+
+alu_couleur.jpg, alu_normal.jpg, alu_rugosite.jpg
+  Tirées d'une photo de l'auteur de la page. Licence : CC0 1.0 Universel.
+
+bas/ : les mêmes textures en basse résolution (affichage pendant le chargement), mêmes licences.
+moyen/ : les textures du sol et des murs en résolution moyenne, mêmes licences.
+
+feuille_chene.png, feuille_frene.png
+  EZ-Tree 1.1.0 (Daniel Greenheck), feuillages redimensionnés. Licence : MIT (voir lib/LICENSE-ez-tree.txt).
+ecorce_couleur.jpg, ecorce_normal.jpg
+  Poly Haven, « Bark Brown 02 » (bark_brown_02), via EZ-Tree, redimensionnées.
+  Licence : CC0 1.0 Universel (domaine public) — https://polyhaven.com/license
+
+linteau_couleur.png, linteau_normal.png
+  Dessinées par script pour cette page. Licence : CC0 1.0 Universel.
