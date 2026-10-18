@@ -24,8 +24,6 @@
   #message.refus { color: var(--refus); }
   #recompense { display: none; margin-top: 10px; }
   #recompense img { display: block; max-width: 100%; height: auto; border-radius: 4px; }
-  #recompense-c { display: none; margin-top: 10px; }
-  #recompense-c img { display: block; max-width: 100%; height: auto; border-radius: 4px; }
   .panneau-salle { display: none; }
   .panneau-salle.vu { display: block; }
   .consigne { margin: -4px 0 10px; font-size: .86rem; color: #cbbd9f; }
@@ -128,15 +126,15 @@
       <span id="message-chapitre" role="status"></span>
     </div>
   </form>
-  <div id="recompense-c"></div>
  </div>
  <div class="panneau-salle" id="p-crypte">
   <h1>Le coffre</h1>
+  <p class="consigne">La dalle attend un mot de dix lettres.</p>
   <form id="saisie" autocomplete="off">
     <div class="champs">
       <label>Salle d'armes<input id="fA" inputmode="numeric" maxlength="16" spellcheck="false"></label>
       <label>Chapelle<input id="fB" inputmode="numeric" maxlength="18" spellcheck="false"></label>
-      <label>Salle du chapitre<input id="fC" autocapitalize="characters" maxlength="24" spellcheck="false"></label>
+      <label>Crypte<input id="fC" autocapitalize="characters" maxlength="24" spellcheck="false"></label>
     </div>
     <div class="actions">
       <button id="ouvrir" type="submit">Ouvrir</button>
@@ -158,7 +156,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
-const COFFRES = { porte: {"v":1,"it":400000,"sel":"cOXPuNAFIuwYVSOAFs5ctQ==","iv":"UgwbMOcS/RKlTZX4","ct":"0q4/6RWF2Wf+h70sHMn3LlI2JNtdzgvEkw/bETmTDLV6egL0Fotcc37csyniH2mpWSzo2VWYdyofy4apq5YKGKy9MS5fsWfLXhR9JtHbziReO9Y24b9MXB05DXY61r6rTXeoc8Q/X+YLzBYlRwRBiib9wF/DzNl58Cc9mv+5TYVIExBCh86NHloWFhCG3+i/JXa+Ns+sYnRuPYq7k8Xn7XGemJJ0LEotVaX3NVNx2JZjjlVFaKvSCL1SEJGeOsNEBGr4oSyXsAEQBU9ukcwpEPg68yIYyWEDxxyHRqYvvjtvisYH4D+QsYqQ8qVNTkISJEIkTFTrfzOY9wj0ZO1RS4K1KLMMD0OQvdgQxT5ttlgrVKUOrBllRroEGnwrrRp7m7MOo/lzCt1RqBTMqfwtT8lCAGK1ROkxVa8Snz9G9HfFPdsdOtnG1K8HOMeEyrIu3pGbp+KR5B9HbjBO8Uel7x/zgg9garQX2EgNjsyVdX3HVJDt8TMQyCI/z7wn0tjfFI4WorfpJFuid68YHknFRqfeBWUyXKc90aV9MH7rDcLKHibqNwIS+vKU5mnEfovEzk3ibAD0383Dh44gzhPALwm6pnTCY2r9oW7kzqHRxk7onIh5tnyCW8iKd3eaZKmI1dj69IS0d5x73qZthEegChd0foRVv5GhQE9tIeePCdg1Hq9M2CoXoQrPyUJnOz3TQFPFKKa2Gsdu2ZnAPFAaUvSVG8R9Pfv1ChN48hJhsVZyAhp73fO/m4RktngpCqugU1y89qr0CmPHgN0sNUquYRHi8XOBeK4dP1dRWV0KE2Y+MFObykjGBM4NB6Ug1LAxn0FxFtxGLUAslTfMMNwyQfP1kRLYITlzLUHEx0G8vsGA+5982slSvMb9eBOOqWsebQ==","json":true}, armes: {"v":1,"it":400000,"sel":"VrcaofhVWlJ9kijdFLUXWg==","iv":"Y9eS/P/03l75oBTO","ct":"SfsQUOtAWimc4PVTo0JzYvW6GOQqEWudJ2GJtnxX/IC5dBIIVj/qknZMRO/9+PHJ9z2m1ZGDs1PKBYDncjK723BDiJOa39il9W2ZjSBZ4t3UGd2QeDx7lS9OyvvLCs48XRPwAT59","json":true}, chapelle: {"v":1,"it":400000,"sel":"zyUuW+AzSMZE6xCAji9T8w==","iv":"0mmVFA0C1YtTkvRP","ct":"vA+ni6PJUkiHxKYz74QpsQtHKkzn8Zi/N+lmFQ7gqyBxHfIbTZy8ax1h1WQHR1nxHyYHkHU=","json":true}, chapitre: {"v":1,"it":400000,"sel":"8PU2N9hgj/LsZ8JBv1rzyA==","iv":"qZysCLphQ/fqsZJo","ct":"MwyEEKrgqbvS4wBm1iuRn3CBMg7ktI2AHzA4EWTHtU7dcpv6lXUDElBFgcb72Vwqdmh5Pb70LZRBFXGAhtvqpt5CcQM0W9KU9fouS71CmSH1nds9ziY7YuSWsKDROQ==","json":true}, crypte: null };
+const COFFRES = { porte: {"v":1,"it":400000,"sel":"cOXPuNAFIuwYVSOAFs5ctQ==","iv":"UgwbMOcS/RKlTZX4","ct":"0q4/6RWF2Wf+h70sHMn3LlI2JNtdzgvEkw/bETmTDLV6egL0Fotcc37csyniH2mpWSzo2VWYdyofy4apq5YKGKy9MS5fsWfLXhR9JtHbziReO9Y24b9MXB05DXY61r6rTXeoc8Q/X+YLzBYlRwRBiib9wF/DzNl58Cc9mv+5TYVIExBCh86NHloWFhCG3+i/JXa+Ns+sYnRuPYq7k8Xn7XGemJJ0LEotVaX3NVNx2JZjjlVFaKvSCL1SEJGeOsNEBGr4oSyXsAEQBU9ukcwpEPg68yIYyWEDxxyHRqYvvjtvisYH4D+QsYqQ8qVNTkISJEIkTFTrfzOY9wj0ZO1RS4K1KLMMD0OQvdgQxT5ttlgrVKUOrBllRroEGnwrrRp7m7MOo/lzCt1RqBTMqfwtT8lCAGK1ROkxVa8Snz9G9HfFPdsdOtnG1K8HOMeEyrIu3pGbp+KR5B9HbjBO8Uel7x/zgg9garQX2EgNjsyVdX3HVJDt8TMQyCI/z7wn0tjfFI4WorfpJFuid68YHknFRqfeBWUyXKc90aV9MH7rDcLKHibqNwIS+vKU5mnEfovEzk3ibAD0383Dh44gzhPALwm6pnTCY2r9oW7kzqHRxk7onIh5tnyCW8iKd3eaZKmI1dj69IS0d5x73qZthEegChd0foRVv5GhQE9tIeePCdg1Hq9M2CoXoQrPyUJnOz3TQFPFKKa2Gsdu2ZnAPFAaUvSVG8R9Pfv1ChN48hJhsVZyAhp73fO/m4RktngpCqugU1y89qr0CmPHgN0sNUquYRHi8XOBeK4dP1dRWV0KE2Y+MFObykjGBM4NB6Ug1LAxn0FxFtxGLUAslTfMMNwyQfP1kRLYITlzLUHEx0G8vsGA+5982slSvMb9eBOOqWsebQ==","json":true}, armes: {"v":1,"it":400000,"sel":"VrcaofhVWlJ9kijdFLUXWg==","iv":"Y9eS/P/03l75oBTO","ct":"SfsQUOtAWimc4PVTo0JzYvW6GOQqEWudJ2GJtnxX/IC5dBIIVj/qknZMRO/9+PHJ9z2m1ZGDs1PKBYDncjK723BDiJOa39il9W2ZjSBZ4t3UGd2QeDx7lS9OyvvLCs48XRPwAT59","json":true}, chapelle: {"v":1,"it":400000,"sel":"zyUuW+AzSMZE6xCAji9T8w==","iv":"0mmVFA0C1YtTkvRP","ct":"vA+ni6PJUkiHxKYz74QpsQtHKkzn8Zi/N+lmFQ7gqyBxHfIbTZy8ax1h1WQHR1nxHyYHkHU=","json":true}, chapitre: {"v":1,"it":400000,"sel":"vj2Ic+Ty8ZpHGAeh99QMWw==","iv":"rM0fLdhFXa8VaaeP","ct":"+ayieWflNHIQqCk2HUmaU84CA36+Pn8tXzU7PdCrUyusoLmmIOCO6lXliIGPN3AlcfEOkIJ8LHNWx3/kOngsRbe49E9DMkdAT+3L/+H23YNdos4izoFi5hVERjZ3pQ==","json":true}, crypte: null };
 let CLE_ACCES = null;
 let D_ARMES = null;
 let D_CHAP = null;
@@ -454,7 +452,33 @@ async function construireCrypte(sc) {
   flamme(sc, -1.25, 0.98, -1.3, 0xffb060, 2.2, 5, true);
   flamme(sc, 1.35, 1.12, -1.4, 0xffb060, 2.2, 5, true);
   t.push(porte(sc, 0, D, Math.PI, "chapitre", usureMur));
+  {
+    const g = new THREE.Group(), l = 2.2, h = l / 3.2;
+    const cadre = new THREE.Mesh(new THREE.BoxGeometry(1, 1, .07), matPierre(0xc4bcac));
+    cadre.scale.set(l + .16, h + .16, 1); cadre.castShadow = cadre.receiveShadow = true;
+    const face = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshStandardMaterial({ color: 0xc9c1b0, roughness: .9, metalness: 0 }));
+    face.scale.set(l, h, 1); face.position.z = .036; face.receiveShadow = true;
+    g.add(cadre, face); g.position.set(-R + .05, 1.9, .2); g.rotation.y = Math.PI / 2;
+    g.userData = { l, h, n: new THREE.Vector3(1, 0, 0), face, cadre };
+    sc.add(g); salleCrypte.dalle = g; salleCrypte.habillee = false;
+    const spot = new THREE.SpotLight(0xffe2b0, 4, 7, .42, .6, 2);
+    spot.position.copy(g.position).addScaledVector(g.userData.n, 2.4).add(new THREE.Vector3(0, .9, 0)); spot.target.position.copy(g.position);
+    sc.add(spot, spot.target);
+  }
   await Promise.all(t);
+  await habillerCrypte();
+}
+async function habillerCrypte() {
+  const g = salleCrypte.dalle;
+  if (!g || !D_DALLE || salleCrypte.habillee) return;
+  salleCrypte.habillee = true;
+  const url = await imageChiffree(D_DALLE);
+  if (!url) { salleCrypte.habillee = false; return; }
+  const img = new Image(); img.src = url; await img.decode();
+  const t = new THREE.Texture(img); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = rendu.capabilities.getMaxAnisotropy(); t.needsUpdate = true;
+  const u = g.userData, asp = img.width / img.height, f = u.face.material;
+  f.map = t; f.color.set(0xffffff); f.needsUpdate = true;
+  u.face.scale.set(u.l, u.l / asp, 1); u.cadre.scale.set(u.l + .16, u.l / asp + .16, 1); u.h = u.l / asp;
 }
 
 const suivre = m => (matsBoite.push(m), m);
@@ -1397,6 +1421,8 @@ function regarderObjet(g, loin = 6.2) {
 }
 
 const salleChapitre = { tenture: null, brodee: false };
+const salleCrypte = { dalle: null, habillee: false };
+let D_DALLE = null;
 async function construireChapitre(sc) {
   const D = 6, R = 5.5, t = [], S = salleChapitre;
   const [tSol, tMur] = await Promise.all([chargerPBR("sol"), chargerPBR("mur")]);
@@ -1624,6 +1650,7 @@ function cibles() {
     l.push({ obj: salleArmes.tenture, agir: regarderTenture });
   }
   if (courante.nom === "chapelle") salleChapelle.plaques.forEach((g, k) => l.push({ obj: g, agir: () => regarderPlaque(k) }));
+  if (courante.nom === "crypte" && salleCrypte.dalle) l.push({ obj: salleCrypte.dalle, agir: () => regarderObjet(salleCrypte.dalle) });
   if (courante.nom === "chapitre" && salleChapitre.tenture) l.push({ obj: salleChapitre.tenture, agir: () => regarderObjet(salleChapitre.tenture, 10.4) });
   return l;
 }
@@ -1803,11 +1830,9 @@ const msgT = document.getElementById("message-chapitre");
 async function essayerChapitre(code, silence = false) {
   const contenu = COFFRES.chapitre ? await ouvrirCoffre(COFFRES.chapitre, code, CLE_ACCES) : null;
   if (!contenu) return false;
-  ouvert.chapitre = true; noter("T", code); precharger("crypte");
+  ouvert.chapitre = true; noter("T", code); D_DALLE = contenu; habillerCrypte(); precharger("crypte");
   if (!silence) { msgT.className = ""; msgT.textContent = "Une porte s'est ouverte."; }
   document.getElementById("fT").value = code;
-  const url = await imageChiffree(contenu), r = document.getElementById("recompense-c");
-  if (url) { r.innerHTML = ""; const img = new Image(); img.src = url; img.alt = ""; r.append(img); r.style.display = "block"; }
   return true;
 }
 document.getElementById("saisie-chapitre").addEventListener("submit", async e => {
@@ -1823,7 +1848,7 @@ document.getElementById("saisie-chapitre").addEventListener("submit", async e =>
 noter("P", undefined);
 { const c = carnet().T; if (c) essayerChapitre(c, true).then(ok => { if (!ok) noter("T", null); }); }
 
-const formats = { fA: /^\d{8}$/, fB: /^\d{9}$/, fC: /^[A-Z]+$/ };
+const formats = { fA: /^\d{8}$/, fB: /^\d{9}$/, fC: /^[A-Z]{10}$/ };
 const msg = document.getElementById("message");
 document.getElementById("saisie").addEventListener("submit", async e => {
   e.preventDefault();
@@ -1831,7 +1856,7 @@ document.getElementById("saisie").addEventListener("submit", async e => {
   const faux = Object.keys(formats).find(k => !formats[k].test(v[k]));
   if (faux) {
     msg.className = "refus";
-    msg.textContent = { fA: "Salle d'armes : 8 chiffres.", fB: "Chapelle : 9 chiffres.", fC: "Salle du chapitre : un mot." }[faux];
+    msg.textContent = { fA: "Salle d'armes : 8 chiffres.", fB: "Chapelle : 9 chiffres.", fC: "Crypte : un mot de dix lettres." }[faux];
     return;
   }
   const bouton = document.getElementById("ouvrir");
