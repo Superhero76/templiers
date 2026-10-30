@@ -1,0 +1,4 @@
+Copied unmodified from three.js r180 (examples/jsm/libs):
+- meshopt_decoder.module.js — meshoptimizer, MIT License, Copyright (C) 2016-2024 Arseny Kapoulkine — https://github.com/zeux/meshoptimizer
+- zstddec.module.js — zstddec, MIT License, Copyright (c) Don McCurdy — https://github.com/donmccurdy/zstddec
+- ktx-parse.module.js — KTX-Parse, MIT License, Copyright (c) Don McCurdy — https://github.com/donmccurdy/KTX-Parse
