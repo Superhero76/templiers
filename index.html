@@ -342,6 +342,31 @@ function ambianceSalle(nom, sc) {
   sons.scene(l);
 }
 const _dirSon = new THREE.Vector3();
+
+const CALME = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const GEO_FLAMME = new THREE.PlaneGeometry(1, 1).translate(0, .5, 0);
+function flammeVisible(sc, pos, couleur, haut) {
+  const m = new THREE.ShaderMaterial({
+    uniforms: { uT: { value: 0 }, uPhase: { value: Math.random() * 50 }, uCoul: { value: new THREE.Color(couleur) }, uVif: { value: CALME ? .35 : 1 } },
+    vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+    fragmentShader: `uniform float uT, uPhase, uVif; uniform vec3 uCoul; varying vec2 vUv;
+      float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f);
+        return mix(mix(h(i), h(i + vec2(1., 0.)), f.x), mix(h(i + vec2(0., 1.)), h(i + vec2(1., 1.)), f.x), f.y); }
+      void main(){
+        vec2 p = vUv; p.x -= .5; float t = uT * 1.7 + uPhase;
+        float d = n(vec2(p.x * 4., p.y * 3. - t * 2.3)) * .6 + n(vec2(p.x * 9., p.y * 7. - t * 4.1)) * .4;
+        p.x += (d - .5) * .32 * p.y * uVif;
+        float w = .3 * (1. - pow(p.y, .75)) * (.85 + .15 * sin(t * 3.1));
+        float corps = smoothstep(w, w * .25, abs(p.x)) * smoothstep(0., .1, p.y) * (1. - smoothstep(.45, 1., p.y + (d - .5) * .3));
+        vec3 c = mix(uCoul * vec3(1., .75, .45), vec3(1., .82, .5), smoothstep(.5, 1., corps) * (1. - p.y) * .7);
+        gl_FragColor = vec4(c * corps * 1.15, corps);
+      }`,
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false, side: THREE.DoubleSide });
+  const f = new THREE.Mesh(GEO_FLAMME, m);
+  f.scale.set(haut * .6, haut, 1); f.position.copy(pos); f.position.y -= haut * .35; f.renderOrder = 2;
+  sc.add(f); return f;
+}
 const chTex = new THREE.TextureLoader();
 
 const chKTX = new KTX2Loader().setTranscoderPath("./lib/basis/").detectSupport(rendu);
@@ -521,7 +546,8 @@ function flamme(sc, x, y, z, couleur, intensite, portee, ombre = false) {
   sc.add(l);
   const braise = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 8), new THREE.MeshBasicMaterial({ color: couleur, toneMapped: false }));
   braise.material.color.multiplyScalar(6); braise.position.copy(l.position); braise.layers.set(1); sc.add(braise);
-  sc.userData.flammes.push({ l, base: intensite, phase: Math.random() * 100, torche: couleur === 0xff8a3a });
+  const torche = couleur === 0xff8a3a;
+  sc.userData.flammes.push({ l, base: intensite, phase: Math.random() * 100, torche, vis: flammeVisible(sc, l.position, couleur, torche ? .5 : .11) });
   return l;
 }
 function statique(l) { l.shadow.autoUpdate = false; l.shadow.needsUpdate = true; return l; }
@@ -902,9 +928,39 @@ async function porte(sc, x, z, ry, vers, usureMur) {
   if (!vantail) { vantail = new THREE.Mesh(new THREE.BoxGeometry(2, 2.75, .12)); vantail.position.y = 1.375; mur.add(vantail); }
   const { bois: matBois, fer: matFer } = await matsMeuble(true);
   vantail.traverse(m => { if (m.isMesh) separerFer(m, matBois, matFer); });
-  portes.push({ sc, obj: vantail, vers });
+  const p = { sc, obj: vantail, vers }; portes.push(p);
+  gond(mur, vantail, p);
   return mur;
 }
+
+const VERROUS = { chapelle: "armes", chapitre: "chapelle", crypte: "chapitre" };
+const porteOuverte = p => !VERROUS[p.vers] || ouvert[VERROUS[p.vers]];
+function gond(mur, vantail, p) {
+  mur.updateMatrixWorld(true);
+  const bb = new THREE.Box3();
+  vantail.traverse(o => { if (o.isMesh) { o.geometry.computeBoundingBox(); const b = o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld); bb.union(b); } });
+  const inv = mur.matrixWorld.clone().invert(), a = bb.min.clone().applyMatrix4(inv), b = bb.max.clone().applyMatrix4(inv);
+  const lo = a.clone().min(b), hi = a.clone().max(b), cz = (lo.z + hi.z) / 2;
+  const pivot = new THREE.Group(); pivot.position.set(lo.x, 0, cz); mur.add(pivot); mur.updateMatrixWorld(true); pivot.attach(vantail);
+  const essai = s => { pivot.rotation.y = s * 1.3; pivot.updateMatrixWorld(true); const c = new THREE.Vector3(); new THREE.Box3().setFromObject(vantail).getCenter(c); pivot.rotation.y = 0; return Math.hypot(c.x, c.z); };
+  p.sens = essai(1) >= essai(-1) ? 1 : -1;
+  const seuil = new THREE.Mesh(new THREE.PlaneGeometry(hi.x - lo.x, hi.y - lo.y), new THREE.MeshBasicMaterial({ visible: false }));
+  seuil.position.set((lo.x + hi.x) / 2, (lo.y + hi.y) / 2, cz);
+  const prise = new THREE.Group(); mur.add(prise); prise.add(seuil); mur.remove(pivot); prise.add(pivot);
+  p.obj = prise; p.pivot = pivot; p.a = p.a0 = p.cible = porteOuverte(p) ? 1 : 0; p.t0 = -10; p.secousse = -10;
+  pivot.rotation.y = p.sens * 1.35 * p.a;
+}
+function animerPortes(sc, t) {
+  for (const p of portes) {
+    if (p.sc !== sc || !p.pivot) continue;
+    const cible = porteOuverte(p) ? 1 : 0;
+    if (p.cible !== cible) { p.cible = cible; p.t0 = t; p.a0 = p.a; }
+    p.a = CALME ? cible : p.a0 + (cible - p.a0) * Math.min(1, (t - p.t0) / 1.6);
+    const k = p.a * p.a * (3 - 2 * p.a), tr = t - p.secousse < .45 ? Math.sin((t - p.secousse) * 60) * .025 * (1 - (t - p.secousse) / .45) : 0;
+    p.pivot.rotation.y = p.sens * (1.35 * k + tr);
+  }
+}
+function portesAuRepos(sc) { for (const p of portes) if (p.sc === sc && p.pivot) { p.a = p.a0 = p.cible = porteOuverte(p) ? 1 : 0; p.t0 = -10; p.pivot.rotation.y = p.sens * 1.35 * p.a; } }
 
 let entreeVol = null;
 const ENTREE = { xP: 1.4, l: 1.0, ys: 2.2, prof: .55, haut: 5.4 };
@@ -1687,7 +1743,7 @@ async function allerVers(nom, premier) {
   const neuve = !SALLES[nom].pret;
   if (neuve) { enPrep = true; suivreSalle(nom, ecran.classList.contains("fini") ? rideau : ecran, nom === "entree"); }
   courante = await preparer(nom);
-  courante.nom = nom; ambianceSalle(nom, courante.sc);
+  courante.nom = nom; ambianceSalle(nom, courante.sc); portesAuRepos(courante.sc);
   if (fouille) finirFouille(true);
   vol = null; purgerCommandes(); commandes.enableRotate = true; commandes.enableZoom = true;
   regler(courante.vue);
@@ -1789,8 +1845,8 @@ function designer(e) {
   return l.find(c => { let o = h.object; while (o) { if (o === c.obj) return true; o = o.parent; } return false; });
 }
 function franchir(p) {
-  const verrou = { chapelle: "armes", chapitre: "chapelle", crypte: "chapitre" }[p.vers];
-  if (verrou && !ouvert[verrou]) { avis("La porte ne s'ouvre pas."); return; }
+  const verrou = VERROUS[p.vers];
+  if (verrou && !ouvert[verrou]) { avis("La porte ne s'ouvre pas."); p.secousse = horloge.getElapsedTime(); return; }
   aller(p.vers);
 }
 let appui = null, toucherEn = null;
@@ -1856,7 +1912,11 @@ function lancer() { if (!anime) { anime = true; animer(); } }
 function animer() {
   const t = horloge.getElapsedTime(), dt = Math.min(.05, t - avant); avant = t;
   const sc = courante.sc;
-  for (const f of sc.userData.flammes) f.l.intensity = f.base * (0.86 + 0.09 * Math.sin(t * 7.3 + f.phase) + 0.05 * Math.sin(t * 17.1 + f.phase * 2.1));
+  for (const f of sc.userData.flammes) {
+    f.l.intensity = f.base * (0.86 + 0.09 * Math.sin(t * 7.3 + f.phase) + 0.05 * Math.sin(t * 17.1 + f.phase * 2.1));
+    if (f.vis) { f.vis.material.uniforms.uT.value = t; f.vis.rotation.y = Math.atan2(camera.position.x - f.vis.position.x, camera.position.z - f.vis.position.z); }
+  }
+  animerPortes(sc, t);
   if (sc.userData.grains) animerPoussieres(sc.userData.grains, t);
   if (vol) avancerVol(t);
   if (fouille && fouille.g && !vol) fouille.g.userData.tour.rotation.y += dt * .55;
